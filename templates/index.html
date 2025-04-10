@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2025 Miller Lite Shithole Fraternity Tour Live Leaderboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .tournament-info {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .leaderboard {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .table {
+            margin-bottom: 0;
+        }
+        .table th {
+            background-color: #343a40;
+            color: white;
+            border-bottom: none;
+        }
+        .table td {
+            vertical-align: middle;
+        }
+        .status-active {
+            color: #28a745;
+        }
+        .status-inactive {
+            color: #dc3545;
+        }
+        .status-unknown {
+            color: #6c757d;
+        }
+        .refresh-time {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        .score-under {
+            color: #28a745;
+        }
+        .score-over {
+            color: #dc3545;
+        }
+        .score-even {
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="tournament-info">
+            <h1 class="h2 mb-3" id="tournamentName">2025 Miller Lite Shithole Fraternity Tour Live Leaderboard</h1>
+            <div class="row">
+                <div class="col-md-3">
+                    <p class="mb-1"><strong>Tournament:</strong> <span id="tournamentName">The Masters</span></p>
+                </div>
+                <div class="col-md-3">
+                    <p class="mb-1"><strong>Dates:</strong> <span id="tournamentDates"></span></p>
+                </div>
+                <div class="col-md-3">
+                    <p class="mb-1"><strong>Venue:</strong> <span id="tournamentVenue"></span></p>
+                </div>
+                <div class="col-md-3">
+                    <p class="mb-1"><strong>Round:</strong> <span id="tournamentRound"></span></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="leaderboard">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Member</th>
+                        <th>Player</th>
+                        <th>Position</th>
+                        <th>Total</th>
+                        <th>Today</th>
+                        <th>Thru</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboardBody">
+                    {% for member, player in members.items() %}
+                    <tr>
+                        <td>{{ member }}</td>
+                        <td>{{ player }}</td>
+                        <td>Loading...</td>
+                        <td>Loading...</td>
+                        <td>Loading...</td>
+                        <td>Loading...</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mt-2">
+            <p class="refresh-time mb-0">Last updated: <span id="lastUpdated">Never</span></p>
+            <button class="btn btn-primary btn-sm" onclick="updateLeaderboard()">Refresh</button>
+        </div>
+    </div>
+
+    <script>
+        function formatScore(score) {
+            if (score === 'N/A' || score === null || score === undefined) return 'N/A';
+            const numScore = parseInt(score);
+            if (isNaN(numScore)) return score;
+            
+            let formattedScore = numScore === 0 ? 'E' : 
+                                numScore > 0 ? `+${numScore}` : 
+                                numScore.toString();
+            
+            return `<span class="${numScore === 0 ? 'score-even' : 
+                                  numScore < 0 ? 'score-under' : 
+                                  'score-over'}">${formattedScore}</span>`;
+        }
+
+        function formatStatus(status) {
+            const statusMap = {
+                'active': '<span class="status-active">Active</span>',
+                'inactive': '<span class="status-inactive">Inactive</span>',
+                'unknown': '<span class="status-unknown">Unknown</span>'
+            };
+            return statusMap[status] || statusMap['unknown'];
+        }
+
+        function formatThru(thru, currentHole) {
+            if (thru === 'N/A' || thru === null || thru === undefined) return 'N/A';
+            if (thru === 'F' || thru === 18) return 'F';
+            return currentHole || thru;
+        }
+
+        async function updateLeaderboard() {
+            try {
+                // Get leaderboard data in a single call
+                const response = await fetch('/api/leaderboard');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+
+                if (data.status === 'success' && data.data && data.tournament) {
+                    const tournament = data.tournament;
+                    document.getElementById('tournamentName').textContent = '2025 Miller Lite Shithole Fraternity Tour Live Leaderboard';
+                    document.getElementById('tournamentDates').textContent = 
+                        `${new Date(tournament.start_date).toLocaleDateString()} - ${new Date(tournament.end_date).toLocaleDateString()}`;
+                    document.getElementById('tournamentVenue').textContent = tournament.venue?.name || 'N/A';
+                    document.getElementById('tournamentRound').textContent = `Round ${tournament.round || 'N/A'}`;
+
+                    const tbody = document.getElementById('leaderboardBody');
+                    const rows = [];
+
+                    // Convert data.data object to array for sorting
+                    const sortedEntries = Object.entries(data.data).sort((a, b) => {
+                        const aPos = a[1].position_number;
+                        const bPos = b[1].position_number;
+                        // First sort by position
+                        if (aPos !== bPos) {
+                            return aPos - bPos;
+                        }
+                        // If positions are equal, sort by player name
+                        return a[1].player.localeCompare(b[1].player);
+                    });
+
+                    for (const [member, info] of sortedEntries) {
+                        const row = document.createElement('tr');
+                        const position = info.tied ? `T${info.position}` : info.position;
+                        row.innerHTML = `
+                            <td>${member}</td>
+                            <td>${info.player || 'N/A'}</td>
+                            <td>${position}</td>
+                            <td>${formatScore(info.score)}</td>
+                            <td>${formatScore(info.today)}</td>
+                            <td>${formatThru(info.thru, info.current_hole)}</td>
+                        `;
+                        rows.push(row);
+                    }
+
+                    // Update DOM in a single batch
+                    tbody.replaceChildren(...rows);
+                    document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
+                } else {
+                    throw new Error(data.message || 'Invalid data format received from server');
+                }
+            } catch (error) {
+                console.error('Error updating leaderboard:', error);
+                const tbody = document.getElementById('leaderboardBody');
+                const errorMessage = error.message || 'Error loading leaderboard. Please try again later.';
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center text-danger">
+                            ${errorMessage}
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Initial update
+        updateLeaderboard();
+    </script>
+</body>
+</html> 

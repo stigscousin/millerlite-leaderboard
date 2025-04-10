@@ -1,0 +1,33 @@
+ * Serving Flask app 'app'
+ * Debug mode: off
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5002
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:127.0.0.1 - - [10/Apr/2025 15:02:52] "GET / HTTP/1.1" 200 -
+INFO:__main__:Fetching tournament schedule...
+INFO:werkzeug:127.0.0.1 - - [10/Apr/2025 15:02:52] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+ERROR:__main__:Masters tournament not found in scheINFO:werkzeug:127.0.0.1 - - [10/Apr/2025 15:16:47] "GET / HTTP/1.1" 200 -
+INFO:__main__:Fetching tournament schedule...
+INFO:werkzeug:127.0.0.1 - - [10/Apr/2025 15:16:47] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+ERROR:__main__:Masters tournament not found in schedule
+INFO:werkzeug:127.0.0.1 - - [10/Apr/2025 15:16:47] "GET /api/leaderboard HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [10/Apr/2025 15:06:29] "GET / HTTP/1.1" 200 -
+INFO:__main__:Fetching tournament schedule...
+ERROR:__main__:Masters tournament not found in schedule
+INFO:werkzeug:127.0.0.1 - - [10/Apr/2025 15:06:30] "GET /api/leaderboard HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [10/Apr/2025 15:10:21] "GET / HTTP/1.1" 200 -
+INFO:__main__:Fetching tournament schedule...
+ERROR:__main__:Masters tournament not found in schedule
+INFO:werkzeug:127.0.0.1 - - [10/Apr/2025 15:10:22] "GET /api/leaderboard HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [10/Apr/2025 15:10:31] "GET / HTTP/1.1" 200 -
+INFO:__main__:Fetching tournament schedule...
+ERROR:__main__:Masters tournament not found in schedule
+INFO:werkzeug:127.0.0.1 - - [10/Apr/2025 15:10:32] "GET /api/leaderboard HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [10/Apr/2025 15:15:20] "GET / HTTP/1.1" 200 -
+INFO:__main__:Fetching tournament schedule...
+ERROR:__main__:Masters tournament not found in schedule
+INFO:werkzeug:127.0.0.1 - - [10/Apr/2025 15:15:20] "GET /api/leaderboard HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [10/Apr/2025 15:26:21] "GET / HTTP/1.1" 200 -
+INFO:__main__:Fetching tournament schedule...
+ERROR:__main__:Masters tournament not found in schedule
+INFO:werkzeug:127.0.0.1 - - [10/Apr/2025 15:26:22] "GET /api/leaderboard HTTP/1.1" 200 -
