@@ -4,6 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2025 Miller Lite Shithole Fraternity Tour Live Leaderboard</title>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-MRZP45V830"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-MRZP45V830', {
+            'send_page_view': true,
+            'cookie_domain': 'auto',
+            'allow_google_signals': true,
+            'allow_ad_personalization_signals': true
+        });
+    </script>
+    <!-- End Google tag (gtag.js) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -143,12 +157,22 @@
 
         async function updateLeaderboard() {
             try {
+                const startTime = performance.now();
                 // Get leaderboard data in a single call
                 const response = await fetch('/api/leaderboard');
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const data = await response.json();
+                const endTime = performance.now();
+                const responseTime = endTime - startTime;
+
+                // Track API response time
+                gtag('event', 'api_response', {
+                    'event_category': 'performance',
+                    'event_label': 'leaderboard',
+                    'value': Math.round(responseTime)
+                });
 
                 if (data.status === 'success' && data.data && data.tournament) {
                     const tournament = data.tournament;
@@ -190,6 +214,12 @@
                     // Update DOM in a single batch
                     tbody.replaceChildren(...rows);
                     document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
+
+                    // Track successful update
+                    gtag('event', 'leaderboard_update', {
+                        'event_category': 'interaction',
+                        'event_label': 'success'
+                    });
                 } else {
                     throw new Error(data.message || 'Invalid data format received from server');
                 }
@@ -197,18 +227,33 @@
                 console.error('Error updating leaderboard:', error);
                 const tbody = document.getElementById('leaderboardBody');
                 const errorMessage = error.message || 'Error loading leaderboard. Please try again later.';
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7" class="text-center text-danger">
-                            ${errorMessage}
-                        </td>
-                    </tr>
-                `;
+                tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">${errorMessage}</td></tr>`;
+
+                // Track error event
+                gtag('event', 'error', {
+                    'event_category': 'error',
+                    'event_label': error.message || 'Unknown error',
+                    'value': 1
+                });
             }
         }
 
-        // Initial update
-        updateLeaderboard();
+        // Track manual refresh button clicks
+        document.querySelector('.btn-primary').addEventListener('click', function() {
+            gtag('event', 'refresh_click', {
+                'event_category': 'interaction',
+                'event_label': 'manual_refresh'
+            });
+        });
+
+        // Update leaderboard when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            gtag('event', 'page_load', {
+                'event_category': 'navigation',
+                'event_label': 'initial_load'
+            });
+            updateLeaderboard();
+        });
     </script>
 </body>
 </html> 

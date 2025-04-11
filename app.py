@@ -12,23 +12,33 @@ CORS(app)  # Enable CORS for all routes
 load_dotenv()
 
 # Set up logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('flask.log'),
+        logging.StreamHandler()
+    ]
+)
 logger = logging.getLogger(__name__)
+
+# Add URL prefix for all routes
+app.config['APPLICATION_ROOT'] = '/millerlite'
 
 # Cache for tournament data
 TOURNAMENT_CACHE = {
     'data': None,
     'last_updated': None,
-    'cache_duration': 300,  # Cache for 5 minutes instead of 1 minute
+    'cache_duration': 600,  # Increase cache duration to 10 minutes
     'tournament_id': '2cba1945-dc1c-4131-92f4-cfdac8c45060'  # Hardcode the 2025 Masters ID
 }
 
 # Rate limiting settings
 RATE_LIMIT = {
     'last_request': None,
-    'min_interval': 0.5,  # Reduce minimum interval between requests to 0.5 seconds
+    'min_interval': 1.0,  # Increase minimum interval between requests to 1 second
     'retry_count': 0,
-    'max_retries': 2  # Reduce max retries to 2
+    'max_retries': 3  # Increase max retries to 3
 }
 
 LEAGUE_MEMBERS = {
@@ -56,9 +66,17 @@ LEAGUE_MEMBERS = {
 SPORTSRADAR_API_KEY = os.getenv('SPORTSRADAR_API_KEY')
 SPORTSRADAR_BASE_URL = "https://api.sportradar.com/golf/trial/pga/v3/en"
 
+def log_memory_usage():
+    """Log current memory usage."""
+    import psutil
+    process = psutil.Process()
+    memory_info = process.memory_info()
+    logger.info(f"Memory usage: {memory_info.rss / 1024 / 1024:.2f} MB")
+
 def make_api_request(url, headers, params):
     """Make an API request with rate limiting and retry logic."""
     current_time = time.time()
+    log_memory_usage()  # Log memory usage before request
     
     # Check if we need to wait due to rate limiting
     if RATE_LIMIT['last_request'] is not None:
@@ -67,24 +85,32 @@ def make_api_request(url, headers, params):
             time.sleep(RATE_LIMIT['min_interval'] - time_since_last)
     
     try:
-        response = requests.get(url, headers=headers, params=params)
+        logger.info(f"Making API request to: {url}")
+        response = requests.get(url, headers=headers, params=params, timeout=10)
         RATE_LIMIT['last_request'] = time.time()
         
         if response.status_code == 429:  # Rate limit exceeded
+            logger.warning("Rate limit exceeded")
             if RATE_LIMIT['retry_count'] < RATE_LIMIT['max_retries']:
                 RATE_LIMIT['retry_count'] += 1
-                time.sleep(2 ** RATE_LIMIT['retry_count'])  # Exponential backoff
+                wait_time = min(2 ** RATE_LIMIT['retry_count'], 30)
+                logger.info(f"Retrying in {wait_time} seconds (attempt {RATE_LIMIT['retry_count']})")
+                time.sleep(wait_time)
                 return make_api_request(url, headers, params)
             else:
-                logger.error(f"Max retries reached for rate limit")
+                logger.error("Max retries reached for rate limit")
                 return None
         elif response.status_code != 200:
-            logger.error(f"Error: {response.status_code}")
+            logger.error(f"API Error: {response.status_code}")
             logger.error(f"Response: {response.text}")
             return None
             
-        RATE_LIMIT['retry_count'] = 0  # Reset retry count on success
+        RATE_LIMIT['retry_count'] = 0
+        log_memory_usage()  # Log memory usage after successful request
         return response.json()
+    except requests.exceptions.Timeout:
+        logger.error("Request timed out")
+        return None
     except Exception as e:
         logger.error(f"Error making API request: {str(e)}")
         return None
