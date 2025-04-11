@@ -6,6 +6,7 @@ import logging
 from flask_cors import CORS
 from datetime import datetime
 import time
+import json
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -151,7 +152,9 @@ def fetch_tournament_leaderboard(year, tournament_id):
         logger.info(f"Fetching tournament leaderboard...")
         response = make_api_request(url, headers, params)
         if response:
-            logger.info(f"Raw leaderboard response: {response}")
+            logger.info("=== RAW API RESPONSE ===")
+            logger.info(json.dumps(response, indent=2))
+            logger.info("=======================")
         return response
     except Exception as e:
         logger.error(f"Error fetching leaderboard: {str(e)}")
@@ -195,11 +198,16 @@ def process_leaderboard_data(leaderboard_data):
     processed_data = {}
     
     if not leaderboard_data or 'leaderboard' not in leaderboard_data:
+        logger.warning("No leaderboard data available")
         return processed_data
         
+    logger.info("=== PROCESSING LEADERBOARD DATA ===")
     for player in leaderboard_data.get('leaderboard', []):
         name = f"{player.get('first_name', '')} {player.get('last_name', '')}"
-        position = player.get('position', 'N/A')
+        logger.info(f"\nProcessing player: {name}")
+        logger.info(f"Raw player data: {json.dumps(player, indent=2)}")
+        
+        position = player.get('position', '-')
         tied = player.get('tied', False)
         score = player.get('score', 'E')
         if score == 0:
@@ -210,30 +218,35 @@ def process_leaderboard_data(leaderboard_data):
         # Get round information
         rounds = player.get('rounds', [])
         current_round = None
-        current_round_number = leaderboard_data.get('round', 1)
+        max_sequence = 0
         
-        # Find the current round
+        # Find the round with the highest sequence number
         for round_data in rounds:
-            if round_data.get('sequence') == current_round_number:
+            sequence = round_data.get('sequence', 0)
+            if sequence > max_sequence:
+                max_sequence = sequence
                 current_round = round_data
-                break
         
         # Get today's score and thru
         if current_round:
-            thru = current_round.get('thru', 'F')
+            thru = current_round.get('thru', 0)
             # If thru is 18, set it to 'F' to indicate finished
             if thru == 18:
                 thru = 'F'
-            today = current_round.get('score', 'N/A')
+            # If thru is 0, they haven't started yet
+            elif thru == 0:
+                thru = '-'
+            today = current_round.get('score', '-')
             
             # Format today's score
             if today == 0:
                 today = 'E'
-            elif today is not None and today != 'N/A':
+            elif today is not None and today != '-':
                 today = f"{'+' if today > 0 else ''}{today}"
         else:
-            thru = 'N/A'
-            today = 'N/A'
+            # Player hasn't started current round
+            thru = '-'
+            today = '-'
             
         processed_data[name] = {
             "position": position,
@@ -243,6 +256,8 @@ def process_leaderboard_data(leaderboard_data):
             "today": today,
             "thru": thru
         }
+        
+        logger.info(f"Processed data for {name}: {json.dumps(processed_data[name], indent=2)}")
     
     return processed_data
 
