@@ -26,23 +26,79 @@
             background-color: #f8f9fa;
         }
         .tournament-info {
-            margin-bottom: 20px;
             padding: 15px;
             background-color: white;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .title-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .miller-logo {
+            height: 40px;
+            width: auto;
+        }
+        .tournament-header {
+            margin-bottom: 15px;
         }
         .leaderboard {
             background-color: white;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             overflow: hidden;
+            width: 100%;
+        }
+        .table-container {
+            overflow-x: auto;
+            margin: 0 -20px;
+            padding: 0 20px;
         }
         .table {
             margin-bottom: 0;
+            min-width: 320px;
+        }
+        .table th, .table td {
+            padding: 8px 1px;
+        }
+        .table th.member-col, .table td.member-col {
+            width: 50px;
+            max-width: 50px;
+            white-space: normal;
+            word-wrap: break-word;
+            padding-left: 8px;
+        }
+        .table th.player-col, .table td.player-col {
+            width: 70px;
+            max-width: 70px;
+            white-space: normal;
+            word-wrap: break-word;
+            padding-left: 8px;
+        }
+        .table th.position-col, .table td.position-col {
+            width: 30px;
+            max-width: 30px;
+            text-align: center;
+        }
+        .table th.score-col, .table td.score-col {
+            width: 30px;
+            max-width: 30px;
+            text-align: center;
+        }
+        .table th.today-col, .table td.today-col {
+            width: 30px;
+            max-width: 30px;
+            text-align: center;
+        }
+        .table th.thru-col, .table td.thru-col {
+            width: 30px;
+            max-width: 30px;
+            text-align: center;
         }
         .table th {
-            background-color: #343a40;
+            background-color: #076652;
             color: white;
             border-bottom: none;
         }
@@ -71,53 +127,55 @@
         .score-even {
             color: #000;
         }
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .table {
+                font-size: 0.9rem;
+            }
+            .container {
+                padding: 0;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="tournament-info">
-            <h1 class="h2 mb-3" id="tournamentName">2025 Miller Lite Shithole Fraternity Tour Live Leaderboard</h1>
-            <div class="row">
-                <div class="col-md-3">
-                    <p class="mb-1"><strong>Tournament:</strong> <span id="tournamentName">The Masters</span></p>
-                </div>
-                <div class="col-md-3">
-                    <p class="mb-1"><strong>Dates:</strong> <span id="tournamentDates"></span></p>
-                </div>
-                <div class="col-md-3">
-                    <p class="mb-1"><strong>Venue:</strong> <span id="tournamentVenue"></span></p>
-                </div>
-                <div class="col-md-3">
-                    <p class="mb-1"><strong>Round:</strong> <span id="tournamentRound"></span></p>
-                </div>
+            <div class="title-container">
+                <img src="{{ url_for('static', filename='images/miller-lite-logo.png') }}" alt="Miller Lite Logo" class="miller-logo">
+                <h1 class="h2 mb-0" id="tournamentName">2025 Miller Lite Shithole Fraternity Tour Live Leaderboard</h1>
             </div>
         </div>
 
         <div class="leaderboard">
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Member</th>
-                        <th>Player</th>
-                        <th>Position</th>
-                        <th>Total</th>
-                        <th>Today</th>
-                        <th>Thru</th>
-                    </tr>
-                </thead>
-                <tbody id="leaderboardBody">
-                    {% for member, player in members.items() %}
-                    <tr>
-                        <td>{{ member }}</td>
-                        <td>{{ player }}</td>
-                        <td>Loading...</td>
-                        <td>Loading...</td>
-                        <td>Loading...</td>
-                        <td>Loading...</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div class="table-container">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th class="member-col">Member</th>
+                            <th class="player-col">Player</th>
+                            <th class="position-col">Pos</th>
+                            <th class="score-col">Total</th>
+                            <th class="today-col">Today</th>
+                            <th class="thru-col">Thru</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboardBody">
+                        {% for member, player in members.items() %}
+                        <tr>
+                            <td class="member-col">{{ member }}</td>
+                            <td class="player-col">{{ player }}</td>
+                            <td class="position-col">Loading...</td>
+                            <td class="score-col">Loading...</td>
+                            <td class="today-col">Loading...</td>
+                            <td class="thru-col">Loading...</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
         <div class="d-flex justify-content-between align-items-center mt-2">
             <p class="refresh-time mb-0">Last updated: <span id="lastUpdated">Never</span></p>
@@ -177,10 +235,6 @@
                 if (data.status === 'success' && data.data && data.tournament) {
                     const tournament = data.tournament;
                     document.getElementById('tournamentName').textContent = '2025 Miller Lite Shithole Fraternity Tour Live Leaderboard';
-                    document.getElementById('tournamentDates').textContent = 
-                        `${new Date(tournament.start_date).toLocaleDateString()} - ${new Date(tournament.end_date).toLocaleDateString()}`;
-                    document.getElementById('tournamentVenue').textContent = tournament.venue?.name || 'N/A';
-                    document.getElementById('tournamentRound').textContent = `Round ${tournament.round || 'N/A'}`;
 
                     const tbody = document.getElementById('leaderboardBody');
                     const rows = [];
@@ -201,12 +255,12 @@
                         const row = document.createElement('tr');
                         const position = info.tied ? `T${info.position}` : info.position;
                         row.innerHTML = `
-                            <td>${member}</td>
-                            <td>${info.player || 'N/A'}</td>
-                            <td>${position}</td>
-                            <td>${formatScore(info.score)}</td>
-                            <td>${formatScore(info.today)}</td>
-                            <td>${formatThru(info.thru, info.current_hole)}</td>
+                            <td class="member-col">${member}</td>
+                            <td class="player-col">${info.player || 'N/A'}</td>
+                            <td class="position-col">${position}</td>
+                            <td class="score-col">${formatScore(info.score)}</td>
+                            <td class="today-col">${formatScore(info.today)}</td>
+                            <td class="thru-col">${formatThru(info.thru, info.current_hole)}</td>
                         `;
                         rows.push(row);
                     }
