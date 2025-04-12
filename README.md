@@ -23,4 +23,4 @@ A live leaderboard application for tracking the Miller Lite Shithole Fraternity 
 
 ## Deployment
 
-This application is deployed on Heroku at [millerlite-leaderboard.herokuapp.com](https://millerlite-leaderboard.herokuapp.com) 
+This application is deployed on Heroku at [[millerlite-leaderboard.herokuapp.com](https://millerlite-leaderboard.herokuapp.com)](https://millerlite-golf-leaderboard-6c5b4ff8cb7e.herokuapp.com/) 
