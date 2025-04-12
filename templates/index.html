@@ -207,10 +207,10 @@
             return statusMap[status] || statusMap['unknown'];
         }
 
-        function formatThru(thru, currentHole) {
+        function formatThru(thru) {
             if (thru === 'N/A' || thru === null || thru === undefined) return 'N/A';
             if (thru === 'F' || thru === 18) return 'F';
-            return currentHole || thru;
+            return thru;
         }
 
         async function updateLeaderboard() {
@@ -260,7 +260,7 @@
                             <td class="position-col">${position}</td>
                             <td class="score-col">${formatScore(info.score)}</td>
                             <td class="today-col">${formatScore(info.today)}</td>
-                            <td class="thru-col">${formatThru(info.thru, info.current_hole)}</td>
+                            <td class="thru-col">${formatThru(info.thru)}</td>
                         `;
                         rows.push(row);
                     }

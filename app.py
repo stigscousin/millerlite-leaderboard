@@ -215,6 +215,19 @@ def process_leaderboard_data(leaderboard_data):
         elif score is not None:
             score = f"{'+' if score > 0 else ''}{score}"
         
+        # Check if player is cut
+        status = player.get('status', '')
+        if status == 'CUT':
+            processed_data[name] = {
+                "position": "CUT",
+                "position_number": 9999 if not str(position).isdigit() else int(position),
+                "tied": False,  # Set tied to False for cut players
+                "score": score,
+                "today": "-",
+                "thru": "-"
+            }
+            continue
+        
         # Get round information
         rounds = player.get('rounds', [])
         current_round = None
