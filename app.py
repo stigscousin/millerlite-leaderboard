@@ -311,6 +311,10 @@ def process_leaderboard_data(leaderboard_data):
                 max_sequence = sequence
                 current_round = round_data
         
+        # Initialize today and thru with default values
+        today = "-"
+        thru = "-"
+        
         # Get today's score and thru
         if current_round:
             thru = current_round.get('thru', 0)
@@ -328,10 +332,6 @@ def process_leaderboard_data(leaderboard_data):
                     today = 'E'
                 elif today is not None and today != '-':
                     today = f"{'+' if today > 0 else ''}{today}"
-        else:
-            # Player hasn't started current round
-            thru = '-'
-            today = '-'
             
         processed_data[name] = {
             "position": position,
