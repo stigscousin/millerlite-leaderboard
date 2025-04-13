@@ -249,13 +249,14 @@ def process_leaderboard_data(leaderboard_data):
             # If thru is 0, they haven't started yet
             elif thru == 0:
                 thru = '-'
-            today = current_round.get('score', '-')
-            
-            # Format today's score
-            if today == 0:
-                today = 'E'
-            elif today is not None and today != '-':
-                today = f"{'+' if today > 0 else ''}{today}"
+                today = '-'  # Set today to '-' if they haven't started
+            else:
+                today = current_round.get('score', '-')
+                # Format today's score
+                if today == 0:
+                    today = 'E'
+                elif today is not None and today != '-':
+                    today = f"{'+' if today > 0 else ''}{today}"
         else:
             # Player hasn't started current round
             thru = '-'
