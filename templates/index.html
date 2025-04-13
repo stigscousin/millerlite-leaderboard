@@ -207,8 +207,13 @@
         function formatPayout(payout) {
             if (!payout || payout === '-' || payout === 'N/A') return '-';
             
-            // Remove any non-numeric characters except decimal point
-            const numericValue = parseFloat(payout.replace(/[^0-9.]/g, ''));
+            // If the payout is already formatted (starts with $), return it as is
+            if (typeof payout === 'string' && payout.startsWith('$')) {
+                return payout;
+            }
+            
+            // Convert to number if it's a string
+            const numericValue = typeof payout === 'string' ? parseFloat(payout) : payout;
             if (isNaN(numericValue)) return payout;
             
             if (numericValue >= 1000000) {
