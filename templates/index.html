@@ -59,42 +59,46 @@
         .table {
             margin-bottom: 0;
             min-width: 320px;
+            table-layout: fixed;
         }
         .table th, .table td {
-            padding: 8px 1px;
+            padding: 8px 8px;
         }
         .table th.member-col, .table td.member-col {
-            width: 50px;
-            max-width: 50px;
+            width: 102px;
+            max-width: 102px;
             white-space: normal;
             word-wrap: break-word;
-            padding-left: 8px;
         }
         .table th.player-col, .table td.player-col {
-            width: 70px;
-            max-width: 70px;
+            width: 108px;
+            max-width: 108px;
             white-space: normal;
             word-wrap: break-word;
-            padding-left: 8px;
         }
         .table th.position-col, .table td.position-col {
-            width: 30px;
-            max-width: 30px;
+            width: 50px;
+            max-width: 50px;
             text-align: center;
         }
         .table th.score-col, .table td.score-col {
-            width: 30px;
-            max-width: 30px;
+            width: 55px;
+            max-width: 55px;
             text-align: center;
         }
         .table th.today-col, .table td.today-col {
-            width: 30px;
-            max-width: 30px;
+            width: 55px;
+            max-width: 55px;
             text-align: center;
         }
         .table th.thru-col, .table td.thru-col {
-            width: 30px;
-            max-width: 30px;
+            width: 50px;
+            max-width: 50px;
+            text-align: center;
+        }
+        .table th.payout-col, .table td.payout-col {
+            width: 60px;
+            max-width: 60px;
             text-align: center;
         }
         .table th {
@@ -160,6 +164,7 @@
                             <th class="score-col">Total</th>
                             <th class="today-col">Today</th>
                             <th class="thru-col">Thru</th>
+                            <th class="payout-col">Payout</th>
                         </tr>
                     </thead>
                     <tbody id="leaderboardBody">
@@ -171,6 +176,7 @@
                             <td class="score-col">Loading...</td>
                             <td class="today-col">Loading...</td>
                             <td class="thru-col">Loading...</td>
+                            <td class="payout-col">Loading...</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -196,6 +202,22 @@
             return `<span class="${numScore === 0 ? 'score-even' : 
                                   numScore < 0 ? 'score-under' : 
                                   'score-over'}">${formattedScore}</span>`;
+        }
+
+        function formatPayout(payout) {
+            if (!payout || payout === '-' || payout === 'N/A') return '-';
+            
+            // Remove any non-numeric characters except decimal point
+            const numericValue = parseFloat(payout.replace(/[^0-9.]/g, ''));
+            if (isNaN(numericValue)) return payout;
+            
+            if (numericValue >= 1000000) {
+                return `$${(numericValue / 1000000).toFixed(1)}m`;
+            } else if (numericValue >= 1000) {
+                return `$${(numericValue / 1000).toFixed(0)}k`;
+            } else {
+                return `$${numericValue.toFixed(0)}`;
+            }
         }
 
         function formatStatus(status) {
@@ -261,6 +283,7 @@
                             <td class="score-col">${formatScore(info.score)}</td>
                             <td class="today-col">${formatScore(info.today)}</td>
                             <td class="thru-col">${formatThru(info.thru)}</td>
+                            <td class="payout-col">${formatPayout(info.payout)}</td>
                         `;
                         rows.push(row);
                     }
