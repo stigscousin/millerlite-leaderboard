@@ -390,8 +390,12 @@ def process_leaderboard_data(leaderboard_data):
     
     return processed_data
 
-@app.route('/millerlite')
+@app.route('/')
 def index():
+    return render_template('index.html', members=LEAGUE_MEMBERS)
+
+@app.route('/millerlite')
+def millerlite():
     return render_template('index.html', members=LEAGUE_MEMBERS)
 
 @app.route('/millerlite/api/tournaments/current')
