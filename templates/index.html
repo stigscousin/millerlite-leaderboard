@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
     <title>2025 Miller Lite Shithole Fraternity Tour Live Leaderboard</title>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-MRZP45V830"></script>
@@ -250,7 +251,7 @@
             try {
                 const startTime = performance.now();
                 // Get leaderboard data in a single call
-                const response = await fetch('/api/leaderboard');
+                const response = await fetch('/millerlite/api/leaderboard');
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }

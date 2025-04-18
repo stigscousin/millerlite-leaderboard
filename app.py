@@ -475,9 +475,5 @@ def get_leaderboard():
             "message": f"Server error: {str(e)}"
         })
 
-@app.route('/favicon.ico')
-def favicon():
-    return app.send_static_file('images/favicon.ico')
-
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5002)), debug=True) 
