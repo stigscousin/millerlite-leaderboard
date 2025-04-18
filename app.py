@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, redirect
 import os
 from dotenv import load_dotenv
 import requests
@@ -334,11 +334,10 @@ def process_leaderboard_data(leaderboard_data):
         # Get round information
         rounds = player.get('rounds', [])
         current_round = None
-        current_round_number = leaderboard_data.get('round', 1)  # Get current tournament round
         
-        # Find the current round
-        for round_data in rounds:
-            if round_data.get('sequence') == current_round_number:
+        # Find the current round (most recent round with sequence number)
+        for round_data in reversed(rounds):
+            if round_data.get('sequence') == len(rounds):
                 current_round = round_data
                 break
         
@@ -349,17 +348,34 @@ def process_leaderboard_data(leaderboard_data):
         # Get today's score and thru
         if current_round:
             thru = current_round.get('thru', 0)
-            # If thru is 18, set it to 'F' to indicate finished
-            if thru == 18:
+            score_today = current_round.get('score', 0)
+            strokes_today = current_round.get('strokes', 0)
+            
+            # Player hasn't started their round
+            if thru == 0 and score_today == 0 and strokes_today == 0:
+                thru = '-'
+                today = '-'
+            # Player has finished their round
+            elif thru == 18:
                 thru = 'F'
+                today = score_today
+                if today == 0:
+                    today = 'E'
+                elif today is not None:
+                    today = f"{'+' if today > 0 else ''}{today}"
+            # Player is in progress
+            else:
+                thru = str(thru)
+                today = score_today
+                if today == 0:
+                    today = 'E'
+                elif today is not None:
+                    today = f"{'+' if today > 0 else ''}{today}"
             
-            # Get today's score
-            today = current_round.get('score', '-')
-            if today == 0:
-                today = 'E'
-            elif today is not None and today != '-':
-                today = f"{'+' if today > 0 else ''}{today}"
-            
+            logger.info(f"Processing round data for {name}:")
+            logger.info(f"Raw round data: {json.dumps(current_round, indent=2)}")
+            logger.info(f"Processed today: {today}, thru: {thru}")
+        
         processed_data[name] = {
             "position": position,
             "position_number": 9999 if not str(position).isdigit() else int(position),
@@ -375,10 +391,14 @@ def process_leaderboard_data(leaderboard_data):
     return processed_data
 
 @app.route('/')
+def root():
+    return redirect('/millerlite')
+
+@app.route('/millerlite')
 def index():
     return render_template('index.html', members=LEAGUE_MEMBERS)
 
-@app.route('/api/tournaments/current')
+@app.route('/millerlite/api/tournaments/current')
 def get_current_tournament_info():
     cached_data = get_cached_data()
     
@@ -401,7 +421,7 @@ def get_current_tournament_info():
         }
     })
 
-@app.route('/api/leaderboard')
+@app.route('/millerlite/api/leaderboard')
 def get_leaderboard():
     try:
         cached_data = get_cached_data()
