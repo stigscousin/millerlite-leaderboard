@@ -8,7 +8,6 @@ from datetime import datetime
 import time
 import json
 import pytz
-from werkzeug.middleware.dispatcher import DispatcherMiddleware
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -24,12 +23,6 @@ logging.basicConfig(
     ]
 )
 logger = logging.getLogger(__name__)
-
-# Add URL prefix for all routes
-app.config['APPLICATION_ROOT'] = '/millerlite'
-app.wsgi_app = DispatcherMiddleware(app.wsgi_app, {
-    '/millerlite': app.wsgi_app
-})
 
 # Cache for tournament data
 TOURNAMENT_CACHE = {
@@ -463,4 +456,4 @@ def get_leaderboard():
         })
 
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=5002, debug=True) 
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5002)), debug=True) 
