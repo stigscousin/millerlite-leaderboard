@@ -44,6 +44,11 @@
         .tournament-header {
             margin-bottom: 15px;
         }
+        .tournament-subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            margin-top: -5px;
+        }
         .leaderboard {
             background-color: white;
             border-radius: 8px;
@@ -149,8 +154,9 @@
         <div class="tournament-info">
             <div class="title-container">
                 <img src="{{ url_for('static', filename='images/miller-lite-logo.png') }}" alt="Miller Lite Logo" class="miller-logo">
-                <h1 class="h2 mb-0" id="tournamentName">2025 Miller Lite Shithole Fraternity Tour Live Leaderboard</h1>
+                <h1 class="tournament-header">2025 Miller Lite Shithole Fraternity Tour Live Leaderboard</h1>
             </div>
+            <div class="tournament-subtitle" id="tournament-name">Loading tournament...</div>
         </div>
 
         <div class="leaderboard">
@@ -261,7 +267,7 @@
 
                 if (data.status === 'success' && data.data && data.tournament) {
                     const tournament = data.tournament;
-                    document.getElementById('tournamentName').textContent = '2025 Miller Lite Shithole Fraternity Tour Live Leaderboard';
+                    document.getElementById('tournament-name').textContent = tournament.name || 'Loading tournament...';
 
                     const tbody = document.getElementById('leaderboardBody');
                     const rows = [];
