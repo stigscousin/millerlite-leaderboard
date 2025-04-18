@@ -390,10 +390,6 @@ def process_leaderboard_data(leaderboard_data):
     
     return processed_data
 
-@app.route('/')
-def root():
-    return redirect('/millerlite')
-
 @app.route('/millerlite')
 def index():
     return render_template('index.html', members=LEAGUE_MEMBERS)
